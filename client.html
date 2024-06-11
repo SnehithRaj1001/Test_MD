@@ -7,31 +7,33 @@
     body {
       margin: 0;
       display: flex;
-      justify-content: flex-start;  /* Align content to the left */
-      align-items: flex-start;  /* Align content to the top */
+      flex-direction: column; /* Change to column layout */
       height: 100vh;
     }
 
-    .SongParts {
+    .SongParts, .Scale {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-gap: 10px;
       border: 1px solid #ccc; /* Thinner border with solid style */
       padding: 10px;
-      position: relative; /* Required for pseudo-element */
-      margin-top: 5px;  /* Move the container 10 pixels lower */
+      margin-top: 5px;  /* Move the container 5 pixels lower */
       margin-left: 5px;
     }
 
-    
+    .Scale {
+      grid-template-columns: repeat(4, 1fr);  /* 4 columns for Scale container */
+    }
 
     button {
       padding: 10px 20px;
       border: none;
       border-radius: 5px;
       cursor: pointer;
+      font-size: 24px;
     }
   </style>
+
 </head>
 <body>
 <div class="SongParts">
@@ -42,11 +44,25 @@
   <button id="bridgeButton">Bridge</button>
   <button id="fillButton">Fill</button>
 </div>
+<div class="Scale">
+  <button id="CButton">C</button>
+  <button id="CSharpButton">C#</button>
+  <button id="DButton">D</button>
+  <button id="DSharpButton">D#</button>
+  <button id="EButton">E</button>
+  <button id="FButton">F</button>
+  <button id="FSharpButton">F#</button>
+  <button id="GButton">G</button>
+  <button id="GSharpButton">G#</button>
+  <button id="AButton">A</button>
+  <button id="ASharpButton">A#</button>
+  <button id="BButton">B</button>
+</div>
 <script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
 <script>
   const socket = io(); // Connect to the server
 
-  // Create separate objects for button states, including Fill
+  // Create separate objects for button states, including Scale buttons
   const buttons = {
     verse: {
       button: document.getElementById('verseButton'),
@@ -68,44 +84,98 @@
       button: document.getElementById('bridgeButton'),
       currentColor: 'none',
     },
-    fill: {  // Added Fill button object
+    fill: {
       button: document.getElementById('fillButton'),
+      currentColor: 'none',
+    },
+    C: {
+      button: document.getElementById('CButton'),
+      currentColor: 'none',
+    },
+    CSharp: {
+      button: document.getElementById('CSharpButton'),
+      currentColor: 'none',
+    },
+    D: {
+      button: document.getElementById('DButton'),
+      currentColor: 'none',
+    },
+    DSharp: {
+      button: document.getElementById('DSharpButton'),
+      currentColor: 'none',
+    },
+    E: {
+      button: document.getElementById('EButton'),
+      currentColor: 'none',
+    },
+    F: {
+      button: document.getElementById('FButton'),
+      currentColor: 'none',
+    },
+    FSharp: {
+      button: document.getElementById('FSharpButton'),
+      currentColor: 'none',
+    },
+    G: {
+      button: document.getElementById('GButton'),
+      currentColor: 'none',
+    },
+    GSharp: {
+      button: document.getElementById('GSharpButton'),
+      currentColor: 'none',
+    },
+    A: {
+      button: document.getElementById('AButton'),
+      currentColor: 'none',
+    },
+    ASharp: {
+      button: document.getElementById('ASharpButton'),
+      currentColor: 'none',
+    },
+    B: {
+      button: document.getElementById('BButton'),
       currentColor: 'none',
     },
   };
 
   function changeColor(buttonObject) {
-    switch (buttonObject.currentColor) {
-      case 'none':
-        buttonObject.currentColor = 'green';
-        buttonObject.button.style.backgroundColor = 'green';
-        break;
-      case 'green':
-        buttonObject.currentColor = 'red';
-        buttonObject.button.style.backgroundColor = 'red';
-        break;
-      default:
-        buttonObject.currentColor = 'none';
-        buttonObject.button.style.backgroundColor = ''; // Reset background color for "none"
-        break;
+    if (['CButton', 'CSharpButton', 'DButton', 'DSharpButton', 'EButton', 'FButton', 'FSharpButton', 'GButton', 'GSharpButton', 'AButton', 'ASharpButton', 'BButton'].includes(buttonObject.button.id)) {
+      buttonObject.currentColor = buttonObject.currentColor === 'none' ? '#5265b7' : 'none';
+      buttonObject.button.style.backgroundColor = buttonObject.currentColor === 'none' ? '' : '#5265b7';
+      // Change font color to white when background color is #5265b7
+      buttonObject.button.style.color = buttonObject.currentColor === '#5265b7' ? 'white' : 'black';
+    } else {
+      switch (buttonObject.currentColor) {
+        case 'none':
+          buttonObject.currentColor = '#71BC68'; // Change color to #71BC68
+          buttonObject.button.style.backgroundColor = '#71BC68';
+          break;
+        case '#71BC68':
+          buttonObject.currentColor = 'none';
+          buttonObject.button.style.backgroundColor = '';
+          break;
+        default:
+          break;
+      }
     }
-    socket.emit('colorChange', { button: buttonObject.button.id, color: buttonObject.currentColor }); // Emit event with button ID and color
+    socket.emit('colorChange', { button: buttonObject.button.id, color: buttonObject.currentColor });
   }
 
-  for (const buttonName in buttons) {  // Add event listener for all buttons, including Fill
+  for (const buttonName in buttons) {
     buttons[buttonName].button.addEventListener('click', () => {
       changeColor(buttons[buttonName]);
     });
   }
 
   socket.on('colorChange', (data) => {
-    if (data.button !== event.target.id) { // Check if received data matches current button
+    if (data.button !== event.target.id) {
       const targetButton = document.getElementById(data.button);
       targetButton.style.backgroundColor = data.color === 'none' ? '' : data.color;
-      buttons[data.button].currentColor = data.color; // Update all button objects for consistency
+      // Change font color to white when background color is #5265b7
+      targetButton.style.color = data.color === '#5265b7' ? 'white' : 'black';
+      buttons[data.button].currentColor = data.color;
     }
   });
-
 </script>
 </body>
 </html>
