@@ -2,178 +2,208 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Color Change App</title>
+  <title>MD</title>
   <style>
     body {
       margin: 0;
       display: flex;
-      flex-direction: column; /* Change to column layout */
+      flex-direction: column;
       height: 100vh;
     }
 
-    .SongParts, .Scale {
+    .SongParts, .Scale, .instruments {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       grid-gap: 10px;
-      border: 1px solid #ccc; /* Thinner border with solid style */
+      border: 1px solid #ccc;
       padding: 10px;
-      margin-top: 5px;  /* Move the container 5 pixels lower */
+      margin-top: 5px;
       margin-left: 5px;
     }
 
     .Scale {
-      grid-template-columns: repeat(4, 1fr);  /* 4 columns for Scale container */
+      grid-template-columns: repeat(4, 1fr);
     }
 
-    button {
+    .Spontaneous {
+      grid-column: span 3; /* Span across all 3 columns */
+    }
+
+    .radio-label, .checkbox-label {
       padding: 10px 20px;
-      border: none;
+      border: 1px solid #ccc;
       border-radius: 5px;
+      text-align: center;
       cursor: pointer;
       font-size: 24px;
+      display: inline-block;
+      user-select: none;
+      color: black; /* Ensure text color is black */
+    }
+
+    input[type="radio"], input[type="checkbox"] {
+      display: none;
+    }
+
+    input[type="radio"]:checked + .radio-label {
+      background-color: #71BC68;
+      color: white; /* Change text color to white */
+    }
+
+    .scale-radio input[type="radio"]:checked + .radio-label {
+      background-color: #5265b7;
+      color: white; /* Change text color to white */
+    }
+
+    input[type="checkbox"]:checked + .checkbox-label {
+      background-color: #d1001f;
+      color: white; /* Change text color to white */
     }
   </style>
-
 </head>
 <body>
 <div class="SongParts">
-  <button id="verseButton">Verse</button>
-  <button id="preChorusButton">Pre-Chorus</button>
-  <button id="chorusButton">Chorus</button>
-  <button id="tagButton">Tag</button>
-  <button id="bridgeButton">Bridge</button>
-  <button id="fillButton">Fill</button>
+  <input type="radio" id="verseButton" name="songPart"><label class="radio-label" for="verseButton">Verse</label>
+  <input type="radio" id="preChorusButton" name="songPart"><label class="radio-label" for="preChorusButton">Pre-Chorus</label>
+  <input type="radio" id="chorusButton" name="songPart"><label class="radio-label" for="chorusButton">Chorus</label>
+  <input type="radio" id="tagButton" name="songPart"><label class="radio-label" for="tagButton">Tag</label>
+  <input type="radio" id="bridgeButton" name="songPart"><label class="radio-label" for="bridgeButton">Bridge</label>
+  <input type="radio" id="fillButton" name="songPart"><label class="radio-label" for="fillButton">Fill</label>
+  <input type="radio" id="spontaneousButton" name="songPart" class="Spontaneous"><label class="radio-label Spontaneous" for="spontaneousButton">Spontaneous</label>
 </div>
 <div class="Scale">
-  <button id="CButton">C</button>
-  <button id="CSharpButton">C#</button>
-  <button id="DButton">D</button>
-  <button id="DSharpButton">D#</button>
-  <button id="EButton">E</button>
-  <button id="FButton">F</button>
-  <button id="FSharpButton">F#</button>
-  <button id="GButton">G</button>
-  <button id="GSharpButton">G#</button>
-  <button id="AButton">A</button>
-  <button id="ASharpButton">A#</button>
-  <button id="BButton">B</button>
+  <input type="radio" id="CButton" name="scale"><label class="radio-label scale-radio" for="CButton">C</label>
+  <input type="radio" id="CSharpButton" name="scale"><label class="radio-label scale-radio" for="CSharpButton">C#</label>
+  <input type="radio" id="DButton" name="scale"><label class="radio-label scale-radio" for="DButton">D</label>
+  <input type="radio" id="DSharpButton" name="scale"><label class="radio-label scale-radio" for="DSharpButton">D#</label>
+  <input type="radio" id="EButton" name="scale"><label class="radio-label scale-radio" for="EButton">E</label>
+  <input type="radio" id="FButton" name="scale"><label class="radio-label scale-radio" for="FButton">F</label>
+  <input type="radio" id="FSharpButton" name="scale"><label class="radio-label scale-radio" for="FSharpButton">F#</label>
+  <input type="radio" id="GButton" name="scale"><label class="radio-label scale-radio" for="GButton">G</label>
+  <input type="radio" id="GSharpButton" name="scale"><label class="radio-label scale-radio" for="GSharpButton">G#</label>
+  <input type="radio" id="AButton" name="scale"><label class="radio-label scale-radio" for="AButton">A</label>
+  <input type="radio" id="ASharpButton" name="scale"><label class="radio-label scale-radio" for="ASharpButton">A#</label>
+  <input type="radio" id="BButton" name="scale"><label class="radio-label scale-radio" for="BButton">B</label>
+</div>
+<div class="instruments">
+  <input type="checkbox" id="backingVocalsCheckbox"><label class="checkbox-label" for="backingVocalsCheckbox">Backing Vocals</label>
+  <input type="checkbox" id="guitarCheckbox"><label class="checkbox-label" for="guitarCheckbox">Guitar</label>
+  <input type="checkbox" id="keysCheckbox"><label class="checkbox-label" for="keysCheckbox">Keys</label>
+  <input type="checkbox" id="drumsCheckbox"><label class="checkbox-label" for="drumsCheckbox">Drums</label>
+  <input type="checkbox" id="cajonCheckbox"><label class="checkbox-label" for="cajonCheckbox">Cajon</label>
+  <input type="checkbox" id="pastorCheckbox"><label class="checkbox-label" for="pastorCheckbox">Pastor</label>
 </div>
 <script src="/node_modules/socket.io/client-dist/socket.io.js"></script>
 <script>
   const socket = io(); // Connect to the server
 
-  // Create separate objects for button states, including Scale buttons
-  const buttons = {
-    verse: {
-      button: document.getElementById('verseButton'),
-      currentColor: 'none',
-    },
-    preChorus: {
-      button: document.getElementById('preChorusButton'),
-      currentColor: 'none',
-    },
-    chorus: {
-      button: document.getElementById('chorusButton'),
-      currentColor: 'none',
-    },
-    tag: {
-      button: document.getElementById('tagButton'),
-      currentColor: 'none',
-    },
-    bridge: {
-      button: document.getElementById('bridgeButton'),
-      currentColor: 'none',
-    },
-    fill: {
-      button: document.getElementById('fillButton'),
-      currentColor: 'none',
-    },
-    C: {
-      button: document.getElementById('CButton'),
-      currentColor: 'none',
-    },
-    CSharp: {
-      button: document.getElementById('CSharpButton'),
-      currentColor: 'none',
-    },
-    D: {
-      button: document.getElementById('DButton'),
-      currentColor: 'none',
-    },
-    DSharp: {
-      button: document.getElementById('DSharpButton'),
-      currentColor: 'none',
-    },
-    E: {
-      button: document.getElementById('EButton'),
-      currentColor: 'none',
-    },
-    F: {
-      button: document.getElementById('FButton'),
-      currentColor: 'none',
-    },
-    FSharp: {
-      button: document.getElementById('FSharpButton'),
-      currentColor: 'none',
-    },
-    G: {
-      button: document.getElementById('GButton'),
-      currentColor: 'none',
-    },
-    GSharp: {
-      button: document.getElementById('GSharpButton'),
-      currentColor: 'none',
-    },
-    A: {
-      button: document.getElementById('AButton'),
-      currentColor: 'none',
-    },
-    ASharp: {
-      button: document.getElementById('ASharpButton'),
-      currentColor: 'none',
-    },
-    B: {
-      button: document.getElementById('BButton'),
-      currentColor: 'none',
-    },
-  };
+  // Store the IDs of the currently selected radio buttons
+  let selectedSongPart = null;
+  let selectedScale = null;
 
-  function changeColor(buttonObject) {
-    if (['CButton', 'CSharpButton', 'DButton', 'DSharpButton', 'EButton', 'FButton', 'FSharpButton', 'GButton', 'GSharpButton', 'AButton', 'ASharpButton', 'BButton'].includes(buttonObject.button.id)) {
-      buttonObject.currentColor = buttonObject.currentColor === 'none' ? '#5265b7' : 'none';
-      buttonObject.button.style.backgroundColor = buttonObject.currentColor === 'none' ? '' : '#5265b7';
-      // Change font color to white when background color is #5265b7
-      buttonObject.button.style.color = buttonObject.currentColor === '#5265b7' ? 'white' : 'black';
+  // Function to handle color change and emitting event to the server
+  function changeColor(buttonId, type) {
+    const buttonElement = document.getElementById(buttonId);
+    const labelElement = buttonElement.nextElementSibling;
+    let color = '';
+
+    if (buttonElement.checked) {
+      color = labelElement.classList.contains('scale-radio') ? '#5265b7' : '#71BC68';
+      labelElement.style.color = 'white'; // Change text color to white
     } else {
-      switch (buttonObject.currentColor) {
-        case 'none':
-          buttonObject.currentColor = '#71BC68'; // Change color to #71BC68
-          buttonObject.button.style.backgroundColor = '#71BC68';
-          break;
-        case '#71BC68':
-          buttonObject.currentColor = 'none';
-          buttonObject.button.style.backgroundColor = '';
-          break;
-        default:
-          break;
-      }
+      labelElement.style.color = 'black'; // Reset text color to black
     }
-    socket.emit('colorChange', { button: buttonObject.button.id, color: buttonObject.currentColor });
+
+    // Emit the color change event to the server
+    socket.emit('colorChange', { button: buttonId, color });
+
+    // Update the selected radio button ID
+    if (type === 'songPart') {
+      selectedSongPart = buttonId;
+    } else if (type === 'scale') {
+      selectedScale = buttonId;
+    }
   }
 
-  for (const buttonName in buttons) {
-    buttons[buttonName].button.addEventListener('click', () => {
-      changeColor(buttons[buttonName]);
+  // Add event listeners for song part buttons
+  document.querySelectorAll('input[name="songPart"]').forEach(button => {
+    button.addEventListener('change', () => {
+      if (selectedSongPart && selectedSongPart !== button.id) {
+        const previousLabel = document.getElementById(selectedSongPart).nextElementSibling;
+        previousLabel.style.backgroundColor = '';
+        previousLabel.style.color = 'black'; // Reset text color to black
+      }
+      changeColor(button.id, 'songPart');
     });
+  });
+
+  // Add event listeners for scale buttons
+  document.querySelectorAll('input[name="scale"]').forEach(button => {
+    button.addEventListener('change', () => {
+      if (selectedScale && selectedScale !== button.id) {
+        const previousLabel = document.getElementById(selectedScale).nextElementSibling;
+        previousLabel.style.backgroundColor = '';
+        previousLabel.style.color = 'black'; // Reset text color to black
+      }
+      changeColor(button.id, 'scale');
+    });
+  });
+
+  // Function to handle checkbox change and emitting event to the server
+  function changeCheckboxState(checkboxId) {
+    const checkboxElement = document.getElementById(checkboxId);
+    const labelElement = checkboxElement.nextElementSibling;
+    let color = '';
+
+    if (checkboxElement.checked) {
+      color = '#d1001f';
+      labelElement.style.color = 'white'; // Change text color to white
+    } else {
+      color = ''; // Reset background color
+      labelElement.style.color = 'black'; // Reset text color to black
+    }
+
+    // Emit the color change event to the server
+    socket.emit('colorChange', { button: checkboxId, color });
   }
 
+  // Add event listeners for checkboxes
+  document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      changeCheckboxState(checkbox.id);
+    });
+  });
+
+  // Handle the color change event from the server
   socket.on('colorChange', (data) => {
-    if (data.button !== event.target.id) {
-      const targetButton = document.getElementById(data.button);
-      targetButton.style.backgroundColor = data.color === 'none' ? '' : data.color;
-      // Change font color to white when background color is #5265b7
-      targetButton.style.color = data.color === '#5265b7' ? 'white' : 'black';
-      buttons[data.button].currentColor = data.color;
+    const targetButton = document.getElementById(data.button);
+    const targetLabel = targetButton.nextElementSibling;
+
+    if (data.color) {
+      targetButton.checked = true;
+      targetLabel.style.backgroundColor = data.color;
+      targetLabel.style.color = 'white'; // Change text color to white
+    } else {
+      targetButton.checked = false;
+      targetLabel.style.backgroundColor = '';
+      targetLabel.style.color = 'black'; // Reset text color to black
+    }
+
+    // Update the selected button ID based on the type
+    if (targetButton.name === 'songPart') {
+      if (selectedSongPart && selectedSongPart !== targetButton.id) {
+        const previousLabel = document.getElementById(selectedSongPart).nextElementSibling;
+        previousLabel.style.backgroundColor = '';
+        previousLabel.style.color = 'black'; // Reset text color to black
+      }
+      selectedSongPart = targetButton.id;
+    } else if (targetButton.name === 'scale') {
+      if (selectedScale && selectedScale !== targetButton.id) {
+        const previousLabel = document.getElementById(selectedScale).nextElementSibling;
+        previousLabel.style.backgroundColor = '';
+        previousLabel.style.color = 'black'; // Reset text color to black
+      }
+      selectedScale = targetButton.id;
     }
   });
 </script>
